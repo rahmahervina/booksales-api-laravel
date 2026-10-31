@@ -7,27 +7,79 @@ use Illuminate\Http\Request;
 
 class GenreController extends Controller
 {
-    // Read all data (Genre)
+    // READ ALL (GET /api/genre)
     public function index()
     {
-        $genres = Genre::all();
-        return response()->json($genres, 200);
+        return response()->json(Genre::all(), 200);
     }
 
-    // Create data (Genre)
+    // CREATE (POST /api/genre)
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
 
-        $genre = Genre::create([
-            'name' => $request->name,
-        ]);
+        $genre = Genre::create($validatedData);
 
         return response()->json([
             'message' => 'Genre berhasil ditambahkan!',
             'data' => $genre
         ], 201);
+    }
+
+    // SHOW DETAIL (GET /api/genre/{id})
+    public function show($id)
+    {
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+                'message' => 'Data Genre tidak ditemukan!'
+            ], 404);
+        }
+
+        return response()->json($genre, 200);
+    }
+
+    // UPDATE (PUT/PATCH /api/genre/{id})
+    public function update(Request $request, $id)
+    {
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+                'message' => 'Data Genre tidak ditemukan!'
+            ], 404);
+        }
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $genre->update($validatedData);
+
+        return response()->json([
+            'message' => 'Genre berhasil diperbarui!',
+            'data' => $genre
+        ], 200);
+    }
+
+    // DESTROY / DELETE (DELETE /api/genre/{id})
+    public function destroy($id)
+    {
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+                'message' => 'Data Genre tidak ditemukan!'
+            ], 404);
+        }
+
+        $genre->delete();
+
+        return response()->json([
+            'message' => 'Genre berhasil dihapus!'
+        ], 200);
     }
 }
